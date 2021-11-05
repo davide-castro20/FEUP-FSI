@@ -1,9 +1,9 @@
 
 Breve descrição do grupo
 
-* Turno: [LM]XX
-* Grupo: YY
+* Turno: M05
+* Grupo: 04
 * Alunos:
-    - Aluno1 upZZZZZ 
-    - Aluno2 upZZZZZ
-    - Aluno3 upZZZZZ
+    - Davide Castro up201806512
+    - Rui Pinto 201806441
+    - Tiago Gomes up201806658
