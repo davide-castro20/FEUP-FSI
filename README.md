@@ -5,5 +5,5 @@ Breve descrição do grupo
 * Grupo: 04
 * Alunos:
     - Davide Castro up201806512
-    - Rui Pinto 201806441
+    - Rui Pinto up201806441
     - Tiago Gomes up201806658
