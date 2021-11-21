@@ -21,7 +21,7 @@ Regarding the file protections, we observe the following:
 - **PIE:**      No PIE (0x8048000)
 - **RWX:**      Has RWX segments
 
-So, we have a x86 (32-bit) architecture (Arch), there's no canary, meaning Stack Guard isn't activated (Stack), we have stack execution permission (NX), and Read, Write and execute permission in the certain regions of the memory. Finally, address randomization isn't turned on (PIE), and RELRO protection is also deactivated but in this case it doesn't matter as it is commonly used as a protection agains ROP chain attacks.
+So, we have an x86 (32-bit) architecture (Arch), there's no canary, meaning Stack Guard isn't activated (Stack), we have stack execution permission (NX), and Read, Write and execute permission in certain regions of the memory. Finally, address randomization isn't turned on (PIE), and RELRO protection is also deactivated but in this case, it doesn't matter as it is commonly used as protection against ROP chain attacks.
 
 Knowing that, and having the goal of reading the contents of the `flag.txt` file, we had to change the value of the `meme_file` variable from `mem.txt` to `flag.txt`.
 
@@ -71,7 +71,7 @@ By using the `file` and `checksec` commands we observe that the file protections
 
 Answering the utterance questions:
 - Which changes were made?
-    -  A 4 byte variable `var` was initialized with some content (`"\xef\xbe\xad\xde"`) and an `if` which compares its content to `0xfefc2122` was also added. Therefore, only by entering the `if` we are able to read the contents of the file.
+    -  A 4-byte variable `var` was initialized with some content (`"\xef\xbe\xad\xde"`) and an `if` which compares its content to `0xfefc2122` was also added. Therefore, only by entering the `if` we are able to read the contents of the file.
 - Do they totally mitigate the problem?
     - As mentioned above, no. We are still able to perform a buffer overflow attack and change the contents of both `var` and `meme_file` and read the `flag.txt` file.
 - Is it possible to overcome that mitigation by using a technique similar to the one used before?
@@ -104,7 +104,7 @@ r.interactive()
 
 Notice the change applied in line 12 which is the 32 bytes string used to perform the buffer overflow.
 
-After the script execution we finally got our flag!
+After the script execution, we finally got our flag!
 
 <figure align="center">
   <img src="/images/week5/challenge2_3.png" alt="my alt text"/>
@@ -119,14 +119,14 @@ This week's suggested lab was Buffer Overflow Attack Lab (Set-UID Version), from
 
 After briefly taking a look at how shellcode in assembly code looks like, we tried compiling and running the code provided.
 
-When running the code, we noticed that a shell prompt was given, allowing us to execute any shell commands. By looking at the code, we understand that by storing the shellcode in a variable and invoking it as a function call, we can get access to a shell with low privileges. This happens because our shellcode didn't include the line responsible for the `setuid(0)` execution that changes the Effective-UID, Real-UID and Saved-UID to 0, meaning root. 
+When running the code, we noticed that a shell prompt was given, allowing us to execute any shell commands. By looking at the code, we understand that by storing the shellcode in a variable and invoking it as a function call, we can get access to a shell with low privileges. This happens because our shellcode didn't include the line responsible for the `setuid(0)` execution that changes the Effective-UID, Real-UID, and Saved-UID to 0, meaning root. 
 
 <figure align="center">
   <img src="/images/week5/task1_1.png" alt="my alt text"/>
   <figcaption>Figure 7. `call_shellcode.c` program execution</figcaption>
 </figure>
 
-Including the aformentioned `setuid(0)` shellcode we get a root shell.
+Including the aforementioned `setuid(0)` shellcode we get a root shell.
 
 <figure align="center">
   <img src="/images/week5/task1_2.png" alt="my alt text"/>
@@ -137,7 +137,7 @@ Including the aformentioned `setuid(0)` shellcode we get a root shell.
 
 In this task, the code of a program vulnerable to buffer overflow attacks is provided to us, in order to analyze, discover the vulnerability and perform an attack, assuming it is a Set-UID program.
 
-To proceed to the next task and develop an exploit, we first compiled the code as 32-bit (``-m32``) and using ``-DBUF_SIZE=100`` (size of the buffer to overflow will be of 100 bytes), before setting root ownership and enabling the Set-UID bit. We also remove the non-executable stack protections (``-z execstack``) and the StackGuard (``-fno-stack-protector``). 
+To proceed to the next task and develop an exploit, we first compiled the code as 32-bit (``-m32``) and used ``-DBUF_SIZE=100`` (size of the buffer to overflow will be of 100 bytes), before setting root ownership and enabling the Set-UID bit. We also remove the non-executable stack protections (``-z execstack``) and the StackGuard (``-fno-stack-protector``). 
 
 <figure align="center">
   <img src="/images/week5/task2.png" alt="my alt text"/>
@@ -177,7 +177,7 @@ Now we can calculate the difference (0xffffc998 - 0xffffc92c), which is **108 by
   <figcaption>Figure 12. Stack disposition.</figcaption>
 </figure>
 
-As we know how the stack frame disposition should be, we now know that the return address is located in the address next to the ebp, so from the start of the `buffer` to the return address there is a 108+4=**112** bytes difference in the stack.
+As we know how the stack frame disposition should be, we now know that the return address is located in the address next to the ebp, so from the start of the `buffer` to the return address, there is a 108+4=**112** bytes difference in the stack.
 
 ### Step 2
 
@@ -217,20 +217,18 @@ with open('badfile', 'wb') as f:
   f.write(content)
 ```
 
-In the ``shellcode`` variable we inserted the shellcode provided in the first task, using the 32-bit version, including the provided line that enables Set-UID. Then, after filling the content of the payload with NOP's, we put the shellcode in the end of the 517 bytes string. This way, if the return address points to any of the NOP's, the execution will end up in the shellcode we insert either way. So, by having the maximum number of NOP's possible before the shellcode, the chances of successfuly exploiting the vulnerability increase and it becomes easier.
+In the ``shellcode`` variable we inserted the shellcode provided in the first task, using the 32-bit version, including the provided line that enables Set-UID. Then, after filling the content of the payload with NOP's, we put the shellcode at the end of the 517 bytes string. This way, if the return address points to any of the NOP's, the execution will end up in the shellcode we insert either way. So, by having the maximum number of NOP's possible before the shellcode, the chances of successfully exploiting the vulnerability increase and it becomes easier.
 
-As for the ``offset``, we used the previous calculated difference, as we know that the return address will be located 112 bytes ahead in the stack compared to the start of the buffer in which we want to insert the payload.
+As for the ``offset``, we used the previously calculated difference, as we know that the return address will be located 112 bytes ahead in the stack compared to the start of the buffer in which we want to insert the payload.
 
-The ``ret`` (value of the return address) could be calculated by using the ``ebp`` address and adding 8 bytes (so the address can point to after the return address location). Although this works using ``gdb``, when running the program without using the debugging information, the actual addresses become larger as ``gdb`` adds some information into the stack. 
-
-It should be noted that the frame pointer value obtained from `gdb` is different from that during theactual execution (without using `gdb`). This is because `gdb` has pushed some environment data into the stack before running the debugged program. When the program runs directly without using  db`, the stack does not have those data, so the actual frame pointer value will be larger. More information about this can be found [here](https://stackoverflow.com/questions/17775186/buffer-overflow-works-in-gdb-but-not-without-it).
+The ``ret`` (value of the return address) could be calculated by using the ``ebp`` address and adding 8 bytes (so the address can point to after the return address location). Although this works using ``gdb``, when running the program without using the debugging information, the actual addresses become larger as ``gdb`` adds some information into the stack. This is because `gdb` has pushed some environment data into the stack before running the debugged program. When the program runs directly without using `gdb`, the stack does not have those data, so the actual frame pointer value will be larger. More information about this can be found [here](https://stackoverflow.com/questions/17775186/buffer-overflow-works-in-gdb-but-not-without-it).
 
 <figure align="center">
   <img src="/images/week5/task3_7.png" alt="my alt text"/>
   <figcaption>Figure 13. Stack with and without gdb.</figcaption>
 </figure>
 
-So we used this value as reference and tried to add a larger offset to the return address value, and, in this case, by adding an additional 144 bytes, the exploit worked and we could use the root shell.
+So we used this value as a reference and tried to add a larger offset to the return address value, and, in this case, by adding an additional 144 bytes, the exploit worked and we could use the root shell.
 
 <figure align="center">
   <img src="/images/week5/task3_5.png" alt="my alt text"/>
