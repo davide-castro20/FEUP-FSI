@@ -68,7 +68,6 @@ By using the `file` and `checksec` commands we observe that the file protections
   <figcaption>Figure 4. Checking file protections</figcaption>
 </figure>
 
-
 Answering the utterance questions:
 - Which changes were made?
     -  A 4-byte variable `var` was initialized with some content (`"\xef\xbe\xad\xde"`) and an `if` which compares its content to `0xfefc2122` was also added. Therefore, only by entering the `if` we are able to read the contents of the file.
@@ -77,11 +76,9 @@ Answering the utterance questions:
 - Is it possible to overcome that mitigation by using a technique similar to the one used before?
     - As you might have guessed from what was already written, yes.
 
-The exploit script was built from the script provided and it basically alters the stack so that it stays as in the following picture:
-
 <figure align="center">
-  <img src="/images/week5/challenge2_2.png" alt="my alt text"/>
-  <figcaption>Figure 5. main() Stack Frame after the exploit execution</figcaption>
+  <img src="/images/week5/challenge2_4.png" alt="my alt text"/>
+  <figcaption>Figure 5. main() Stack Frame before the exploit execution</figcaption>
 </figure>
 
 The python exploit used was the following:
@@ -102,13 +99,20 @@ r.sendline(b"1" * 20 + b"\x22\x21\xfc\xfe" + b"flag.txt")
 r.interactive()
 ```
 
-Notice the change applied in line 12 which is the 32 bytes string used to perform the buffer overflow.
+Notice the change applied in line 12 which is the 32 bytes string used to perform the buffer overflow. The first 20 bytes are just garbage, the following 4 are used to alter `var` to `0xfefc2122` and the final 8 bytes set `meme_file` to `flag.txt`.
+
+The exploit script was built from the script provided and it basically alters the stack so that it stays as in the following picture:
+
+<figure align="center">
+  <img src="/images/week5/challenge2_2.png" alt="my alt text"/>
+  <figcaption>Figure 6. main() Stack Frame after the exploit execution</figcaption>
+</figure>
 
 After the script execution, we finally got our flag!
 
 <figure align="center">
   <img src="/images/week5/challenge2_3.png" alt="my alt text"/>
-  <figcaption>Figure 6. Getting the flag after exploit execution</figcaption>
+  <figcaption>Figure 7. Getting the flag after exploit execution</figcaption>
 </figure>
 
 # SEED Lab Tasks
@@ -123,14 +127,14 @@ When running the code, we noticed that a shell prompt was given, allowing us to 
 
 <figure align="center">
   <img src="/images/week5/task1_1.png" alt="my alt text"/>
-  <figcaption>Figure 7. `call_shellcode.c` program execution</figcaption>
+  <figcaption>Figure 8. `call_shellcode.c` program execution</figcaption>
 </figure>
 
 Including the aforementioned `setuid(0)` shellcode we get a root shell.
 
 <figure align="center">
   <img src="/images/week5/task1_2.png" alt="my alt text"/>
-  <figcaption>Figure 8. `call_shellcode.c` program execution with `setuid(0)`</figcaption>
+  <figcaption>Figure 9. `call_shellcode.c` program execution with `setuid(0)`</figcaption>
 </figure>
 
 ## Task 2
@@ -141,7 +145,7 @@ To proceed to the next task and develop an exploit, we first compiled the code a
 
 <figure align="center">
   <img src="/images/week5/task2.png" alt="my alt text"/>
-  <figcaption>Figure 9. Compilation of the program.</figcaption>
+  <figcaption>Figure 10. Compilation of the program.</figcaption>
 </figure>
 
 
@@ -159,12 +163,12 @@ In order to do an exploit, we need to know the difference between the buffer sta
 
 <figure align="center">
   <img src="/images/week5/task3_2.png" alt="my alt text"/>
-  <figcaption>Figure 10. Running the program using gdb.</figcaption>
+  <figcaption>Figure 11. Running the program using gdb.</figcaption>
 </figure>
 
 <figure align="center">
   <img src="/images/week5/task3_3.png" alt="my alt text"/>
-  <figcaption>Figure 11. ebp and buffer addresses.</figcaption>
+  <figcaption>Figure 12. ebp and buffer addresses.</figcaption>
 </figure>
 
 - ``ebp``: **0xffffc998**
@@ -174,7 +178,7 @@ Now we can calculate the difference (0xffffc998 - 0xffffc92c), which is **108 by
 
 <figure align="center">
   <img src="/images/week5/task3_4.png" alt="my alt text"/>
-  <figcaption>Figure 12. Stack disposition.</figcaption>
+  <figcaption>Figure 13. Stack disposition.</figcaption>
 </figure>
 
 As we know how the stack frame disposition should be, we now know that the return address is located in the address next to the ebp, so from the start of the `buffer` to the return address, there is a 108+4=**112** bytes difference in the stack.
@@ -225,19 +229,19 @@ The ``ret`` (value of the return address) could be calculated by using the ``ebp
 
 <figure align="center">
   <img src="/images/week5/task3_7.png" alt="my alt text"/>
-  <figcaption>Figure 13. Stack with and without gdb.</figcaption>
+  <figcaption>Figure 14. Stack with and without gdb.</figcaption>
 </figure>
 
 So we used this value as a reference and tried to add a larger offset to the return address value, and, in this case, by adding an additional 144 bytes, the exploit worked and we could use the root shell.
 
 <figure align="center">
   <img src="/images/week5/task3_5.png" alt="my alt text"/>
-  <figcaption>Figure 14. Running the program with exploit on gdb.</figcaption>
+  <figcaption>Figure 15. Running the program with exploit on gdb.</figcaption>
 </figure>
 
 > **Note**: we noticed that, when using `gdb`, the shell will not run with root privileges, regardless of the program ownership or Set-UID bit and line in the shellcode. This is because the debugger always requires the same privileges as the program in order to debug it.
 
 <figure align="center">
   <img src="/images/week5/task3_6.png" alt="my alt text"/>
-  <figcaption>Figure 15. Running the program with exploit without gdb.</figcaption>
+  <figcaption>Figure 16. Running the program with exploit without gdb.</figcaption>
 </figure>
