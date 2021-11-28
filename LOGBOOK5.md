@@ -83,7 +83,7 @@ Answering the utterance questions:
 
 The python exploit used was the following:
 
-```python=
+```python
 #!/usr/bin/python3
 from pwn import *
 
@@ -187,7 +187,7 @@ As we know how the stack frame disposition should be, we now know that the retur
 
 Having all the needed information, we started making changes to the python exploit script, that is the following:
 
-```python=
+```python
 #!/usr/bin/python3
 import sys
 
