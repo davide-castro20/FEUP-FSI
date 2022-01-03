@@ -1,6 +1,3 @@
-
-Breve descrição do grupo
-
 * Turno: M05
 * Grupo: 04
 * Alunos:
